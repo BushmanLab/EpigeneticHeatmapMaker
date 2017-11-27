@@ -14,15 +14,14 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-libs <- c("survival", "hotROCs", "colorspace", "hiAnnotator", 
-          "plyr", "reshape2")
-
-loaded <- sapply(libs, library, character.only=TRUE, quietly=TRUE)
-
 make_epi_heatmap <- function(sampleName_GTSP, referenceGenome, output_dir, 
     connection, annotPath, histoneorder
 ) {
-    sites <- get_sites_controls_from_db(sampleName_GTSP, referenceGenome, connection)
+    if(class(connection) == "character"){
+      sites <- get_sites_controls_from_db(sampleName_GTSP, referenceGenome, connection)
+    }else{
+      sites <- get_sites_controls_from_file(sampleName_GTSP, referenceGenome, connection)
+    }
     sites_to_epigenetic_heatmap(sites, referenceGenome, output_dir, annotPath, histoneorder)
 }
 

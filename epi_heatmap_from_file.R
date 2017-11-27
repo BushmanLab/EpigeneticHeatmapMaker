@@ -14,19 +14,21 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-library(argparse, quietly=TRUE)
+suppressPackageStartupMessages(library(argparse, quietly=TRUE))
 
 parser <- ArgumentParser(description="Make epigenetic heatmap for sites from database")
 parser$add_argument("sample_gtsp", nargs='?', default='sampleName_GTSP.csv')
 parser$add_argument("-c", default="./INSPIIRED.yml", help="path to INSPIIRED configuration file.")
 parser$add_argument("-o", "--output_dir", type="character", default="epi_heatmap_output",
     help="output folder where genomic heat maps files will be saved")
-parser$add_argument("-r", "--ref_genome", type="character", default="hg18", 
-    help="reference genome used for all samples(only hg18 and mm8 are supported at present)")
+parser$add_argument("-r", "--ref_genome", type="character", default="hg38", 
+    help="reference genome used for all samples (only hg38, hg18, and mm8 are supported at present)")
 parser$add_argument("-s", "--sites_group", type="character", default="intsites_miseq.read", 
     help="which group to use for connection")
 parser$add_argument("-t", "--cell_types", type="character", 
     help="file with cell types to use: each cell type on separate line(epi_cell_types.R prints all avalable types)")
+parser$add_argument("-f", "--file", type="character", default=NULL,
+    help="File with sites. CSV format. Included columns: seqnames, start, end, strand, sampleName, refGenome.")
 
 args <- parser$parse_args()
 
@@ -64,22 +66,20 @@ stopifnot(all(c("sampleName", "GTSP") %in% colnames(sampleName_GTSP)))
 message("\nGenerating report from the following sets")
 print(sampleName_GTSP)
 
-# Connect to my database
-if (config$dataBase == 'mysql'){
-   stopifnot(file.exists("~/.my.cnf"))
-   stopifnot(file.info("~/.my.cnf")$mode == as.octmode("600"))
-   dbConn <- dbConnect(MySQL(), group=config$mysqlConnectionGroup)
-   info <- dbGetInfo(dbConn)
-   connection <- src_sql("mysql", dbConn, info = info)
-}else if (config$dataBase == 'sqlite') {
-   dbConn <- dbConnect(RSQLite::SQLite(), dbname=config$sqliteIntSitesDB)
-   info <- dbGetInfo(dbConn)
-   connection <- src_sql("sqlite", dbConn, info = info)
-   dbConn2 <- dbConnect(RSQLite::SQLite(), dbname=config$sqliteSampleManagement)
-   info2 <- dbGetInfo(dbConn2)
-   connection2 <- src_sql("sqlite", dbConn2, info = info2)
-} else { stop('Can not establish a connection to the database') }
-
+stopifnot(file.exists(args$file))
+sites <- read.csv(args$file)
+# Check for required columns
+if(!all(c("seqnames", "start", "end", "strand", "sampleName", "refGenome") %in% names(sites))){
+  stop("Lacking required columns in input file. See help.")
+}
+sites <- select(sites, seqnames, start, end, strand, sampleName, refGenome) %>%
+  mutate(position = ifelse(strand == "+", start, end)) %>%
+  distinct(seqnames, strand, position, sampleName, refGenome) %>%
+  mutate(
+    siteID = 1:n(),
+    gender = rep("m", n())) %>%
+  rename("chr" = seqnames) %>%
+  as.data.frame()
 
 histoneorder_for_heatmap <- epigenetic_features()
 if ( ! is.null(args$cell_types)) {
@@ -92,5 +92,5 @@ message("epigenetic heatmap for the following cell types:")
 cat(histoneorder_for_heatmap, sep='\n')
 
 make_epi_heatmap(sampleName_GTSP, referenceGenome, heat_map_result_dir, 
-    connection, annotation, histoneorder_for_heatmap)
+    sites, annotation, histoneorder_for_heatmap)
 
