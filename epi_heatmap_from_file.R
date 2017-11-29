@@ -23,8 +23,6 @@ parser$add_argument("-o", "--output_dir", type="character", default="epi_heatmap
     help="output folder where genomic heat maps files will be saved")
 parser$add_argument("-r", "--ref_genome", type="character", default="hg38", 
     help="reference genome used for all samples (only hg38, hg18, and mm8 are supported at present)")
-parser$add_argument("-s", "--sites_group", type="character", default="intsites_miseq.read", 
-    help="which group to use for connection")
 parser$add_argument("-t", "--cell_types", type="character", 
     help="file with cell types to use: each cell type on separate line(epi_cell_types.R prints all avalable types)")
 parser$add_argument("-f", "--file", type="character", default=NULL,
@@ -69,12 +67,10 @@ print(sampleName_GTSP)
 stopifnot(file.exists(args$file))
 sites <- read.csv(args$file)
 # Check for required columns
-if(!all(c("seqnames", "start", "end", "strand", "sampleName", "refGenome") %in% names(sites))){
+if(!all(c("seqnames", "strand", "position", "sampleName", "refGenome") %in% names(sites))){
   stop("Lacking required columns in input file. See help.")
 }
-sites <- select(sites, seqnames, start, end, strand, sampleName, refGenome) %>%
-  mutate(position = ifelse(strand == "+", start, end)) %>%
-  distinct(seqnames, strand, position, sampleName, refGenome) %>%
+sites <- distinct(sites, seqnames, strand, position, sampleName, refGenome) %>%
   mutate(
     siteID = 1:n(),
     gender = rep("m", n())) %>%
