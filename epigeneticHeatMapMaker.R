@@ -14,10 +14,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-libs <- c("survival", "hotROCs", "colorspace", "hiAnnotator", 
-          "plyr", "reshape2")
+codeDir <- dirname(sub("--file=", "", grep("--file=", commandArgs(trailingOnly=FALSE), value=T)))
+source(file.path(codeDir,'supp.R'))
 
-loaded <- sapply(libs, library, character.only=TRUE, quietly=TRUE)
+library(survival)
+library(reshape2)
 
 make_epi_heatmap <- function(sampleName_GTSP, referenceGenome, output_dir, 
     connection, annotPath, histoneorder

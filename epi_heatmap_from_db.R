@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+source('supp.R')
+
 library(argparse, quietly=TRUE)
 
 parser <- ArgumentParser(description="Make epigenetic heatmap for sites from database")
@@ -46,7 +48,6 @@ library(RMySQL, quietly=TRUE)
 library(dplyr)
 
 library(BSgenome)
-library(intSiteRetriever)
 library(devtools)
 
 #source_url('https://raw.githubusercontent.com/BushmanLab/genomicHeatmapMaker/master/utils.R')
