@@ -297,15 +297,17 @@ na.median <-
 
 # ROC calculation for Matched Random Controls 
 # This is similar to the way we did this classically for restriction sites.
-sites_to_ROC_matched <- function(sites_mrcs, output_dir) {
+sites_to_ROC_matched <- function(sites_mrcs, sampleName_GTSP, output_dir) {
   sites_mrcs <- as.data.frame(sites_mrcs)
   annotation_columns <- get_annotation_columns(sites_mrcs)
     roc.res <- ROC.MRC(
     sites_mrcs[,"type"],
     sites_mrcs[,"siteID"],
     na.median(sites_mrcs[,annotation_columns]),
-    sites_mrcs[,"sampleName"])
+    sites_mrcs[,"sampleName"],
+    origin.levels = unique(sampleName_GTSP$GTSP))
   ROCSVG(roc.res, output_dir)
+  saveRDS(roc.res, file = file.path(output_dir, "roc.res.rds"))
 }
 
 
@@ -314,7 +316,7 @@ sites_to_ROC_matched <- function(sites_mrcs, output_dir) {
 # This should roughly match. p-values will differ but should not be
 # qualitatively different.
 
-sites_to_ROC_ordinary <- function(sites_mrcs, output_dir) {
+sites_to_ROC_ordinary <- function(sites_mrcs, sampleName_GTSP, output_dir) {
   sites_mrcs <- as.data.frame(sites_mrcs)
 
   write.table(sites_mrcs, file='sites_mrcs.epi')
@@ -322,8 +324,9 @@ sites_to_ROC_ordinary <- function(sites_mrcs, output_dir) {
   annotation_columns <- get_annotation_columns(sites_mrcs)
   roc.res <- ROC.ORC(
     sites_mrcs[,"type"],
-#   sites_mrcs[,annotation_columns],
     na.median(sites_mrcs[,annotation_columns]),
-    sites_mrcs[,"sampleName"])
+    sites_mrcs[,"sampleName"],
+    origin.levels = unique(sampleName_GTSP$GTSP))
   ROCSVG(roc.res, output_dir)
+  saveRDS(roc.res, file = file.path(output_dir, "roc.res.rds"))
 }

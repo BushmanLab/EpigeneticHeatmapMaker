@@ -22,10 +22,10 @@ make_epi_heatmap <- function(sampleName_GTSP, referenceGenome, output_dir,
     }else{
       sites <- get_sites_controls_from_file(sampleName_GTSP, referenceGenome, connection)
     }
-    sites_to_epigenetic_heatmap(sites, referenceGenome, output_dir, annotPath, histoneorder)
+    sites_to_epigenetic_heatmap(sites, referenceGenome, sampleName_GTSP, output_dir, annotPath, histoneorder)
 }
 
-sites_to_epigenetic_heatmap <- function(sites, referenceGenome, output_dir, annotPath, histoneorder) {
+sites_to_epigenetic_heatmap <- function(sites, referenceGenome, sampleName_GTSP, output_dir, annotPath, histoneorder) {
     #### set parameters for annotations & analysis ####
     if( ! file.exists(annotPath)) {
         stop("Required annotation directory doesn't exist: ", annotPath)
@@ -64,9 +64,9 @@ sites_to_epigenetic_heatmap <- function(sites, referenceGenome, output_dir, anno
 
     if (config$rocControls == 'unmatched')
     {
-      sites_to_ROC_ordinary(sites, output_dir)
+      sites_to_ROC_ordinary(sites, sampleName_GTSP, output_dir)
     } else if (config$rocControls == 'matched') {
-      sites_to_ROC_matched(sites, output_dir)
+      sites_to_ROC_matched(sites, sampleName_GTSP, output_dir)
     } else {
       stop('Error, rocControls is not properly defined in the configuration file.')
     }

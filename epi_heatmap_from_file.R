@@ -33,7 +33,7 @@ args <- parser$parse_args()
 codeDir <- dirname(sub("--file=", "", grep("--file=", commandArgs(trailingOnly=FALSE), value=T)))
 
 libs <- c("yaml", "survival", "hotROCs", "colorspace", "hiAnnotator", "plyr", "reshape2",
-          "DBI", "RMySQL", "BSgenome", "intSiteRetriever", "dplyr", "devtools")
+          "DBI", "RMySQL", "BSgenome", "intSiteRetriever", "dplyr", "devtools", "hotROCs")
 loaded <- sapply(libs, library, character.only=TRUE, quietly=TRUE)
 
 # Load configuration file
