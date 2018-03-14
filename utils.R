@@ -305,7 +305,7 @@ sites_to_ROC_matched <- function(sites_mrcs, sampleName_GTSP, output_dir) {
     sites_mrcs[,"siteID"],
     na.median(sites_mrcs[,annotation_columns]),
     sites_mrcs[,"sampleName"],
-    origin.levels = unique(sampleName_GTSP$GTSP))
+    origin.levels = unique(as.character(sampleName_GTSP$GTSP)))
   ROCSVG(roc.res, output_dir)
   saveRDS(roc.res, file = file.path(output_dir, "roc.res.rds"))
 }
@@ -326,7 +326,7 @@ sites_to_ROC_ordinary <- function(sites_mrcs, sampleName_GTSP, output_dir) {
     sites_mrcs[,"type"],
     na.median(sites_mrcs[,annotation_columns]),
     sites_mrcs[,"sampleName"],
-    origin.levels = unique(sampleName_GTSP$GTSP))
+    origin.levels = unique(as.character(sampleName_GTSP$GTSP)))
   ROCSVG(roc.res, output_dir)
   saveRDS(roc.res, file = file.path(output_dir, "roc.res.rds"))
 }
